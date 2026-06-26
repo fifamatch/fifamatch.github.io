@@ -390,7 +390,22 @@
             .logo { font-size: 24px; }
             .app-container { padding: 15px; gap: 20px; }
             
-            .server-toolbar { padding: 15px; }
+            /* Smart Sticky Toolbar Style */
+            .server-toolbar { 
+                padding: 15px; 
+                position: sticky;
+                top: 65px; /* ঠিক হেডারের নিচ থেকে কাজ করবে */
+                z-index: 90;
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            }
+
+            /* Scroll Down Effect Hide Class */
+            .server-toolbar.hide-on-scroll {
+                transform: translateY(-150%);
+                opacity: 0;
+                pointer-events: none;
+            }
+
             .server-group-inline { flex-direction: row; flex-wrap: wrap; }
             .server-btn-compact { padding: 8px 12px; font-size: 12px; flex: 1; justify-content: center; }
             
@@ -418,8 +433,8 @@
 
     <main class="app-container">
 
-        <!-- COMPACT SERVER TOOLBAR -->
-        <section class="server-toolbar">
+        <!-- COMPACT SERVER TOOLBAR (Sticky on Mobile) -->
+        <section class="server-toolbar" id="toolbar">
             <div class="toolbar-title"><i class="fa-solid fa-sliders"></i> Select Server:</div>
             
             <div class="server-groups-wrapper">
@@ -462,7 +477,7 @@
                     </a>
                 </div>
 
-                <!-- Iframe Container -->
+                <!-- Iframe Container (Scrolling enabled for PC & Mobile) -->
                 <div class="iframe-container">
                     <iframe 
                         id="main-player"
@@ -507,6 +522,7 @@
     </footer>
     
     <script>
+        // Server Switching Logic
         function switchServer(url, buttonElement) {
             const player = document.getElementById('main-player');
             
@@ -521,6 +537,26 @@
             buttons.forEach(btn => btn.classList.remove('active'));
             buttonElement.classList.add('active');
         }
+
+        // Smart Sticky Toolbar Logic (Only for Mobile)
+        let lastScrollY = window.scrollY;
+        const toolbar = document.getElementById('toolbar');
+
+        window.addEventListener('scroll', () => {
+            if (window.innerWidth <= 768) { // Mobile Screen Check
+                if (window.scrollY > lastScrollY && window.scrollY > 80) {
+                    // Scrolling Down: Hide Toolbar
+                    toolbar.classList.add('hide-on-scroll');
+                } else {
+                    // Scrolling Up: Show Toolbar
+                    toolbar.classList.remove('hide-on-scroll');
+                }
+            } else {
+                // Ensure it is always visible on PC
+                toolbar.classList.remove('hide-on-scroll');
+            }
+            lastScrollY = window.scrollY;
+        });
 
         // Service Worker Logic
         if ('serviceWorker' in navigator) {
